@@ -1,0 +1,40 @@
+= Keyword Driven Testing mit QF-Test
+:toc:
+:toc-title: Inhaltsverzeichnis
+
+== Motivation
+
+Für einen effizienten Einsatz von Testautomatisierung wird sowohl fachliche Kenntnisse über das Testobjekt als auch technische Kenntnisse zur Automatisierung benötigt. Die fachlichen Kenntnisse lassen sich eher in der Fachabteilung finden, in der technische Kenntnisse nicht immer ausreichend gut ausgeprägt sind.
+
+Ein Konzept, mit dem die Testautomatisierung arbeitsteilig organisiert werden kann, ist die schlüsselwortbasierte Testfalldarstellung. Dabei werden Schlüsselwörter definiert, die Aktivitäten mit den Testobjekt aus der fachlichen Domäne beschreiben. Diese Schlüsselwörter werden von einem Testautomatisier implementiert und bereitgestellt.
+
+Ein Testfall in der schlüsselwortbasierten Testfalldarstellung ist eine Folge von Schlüsselwörtern, die nacheinander ausgeführt werden sollen. Das einfache Aneinanderreihen von Schlüsselwörtern vereinfacht den technischen Anteil der Testfallentwicklung und damit können die Testfälle von Mitarbeitern der Fachabteilung entwickelt werden, ohne dass diese sich zu sehr in die technische Domäne einarbeiten müssen.
+
+Eine einfache Syntax für automatisierte Testfälle ist auch hilfreich, wenn konkrete Testfälle durch einenen Generator entwickelt werden sollen. 
+
+In diesem Repository ist eine Implememtierung zu finden, mit der sich die schlüsselwortbasierte Testfalldarstellung mit dem Testausführungswerkzeug https://www.qftest.com/[QF-Test] von der Firma Quality First Software GmbH
+
+== Bestandteile des Repository
+
+Im Wesentlichen besteht der Inhalt aus drei Teilen:
+
+. Datei `testcases/SampleTestsuite.xlsx` +
+    Diese Excel-Datei ist ein einfaches Beispiel für schlüsselwortbasierte Testfälle, die mit QF-Test ausgeführt werden können.
+
+. Datei `keyword-driven-testing.qft` +
+    Dabei handelt es sich um eine QF-Test-Datei mit der Funktionalität, die für die Ausführung der Testfälle benötigt wird.
+
+. Verzeichnis `lib` +
+    Mit QF-Test 10 gab es eine Umstellung und die Bibliotheken aus dem Projekt https://poi.apache.org/[Apache POI] werden nicht mehr von QF-Test bereitgestellt. Wer QF-Test 10 nutzt, muss diese Dateien in das https://www.qftest.com/doc/manual/de/tech_scripting_concepts.html?q=jar#sec_plugindir[Plugin-Verzeichnis] von QF-Test kopiert werden.
+
+=== Testsuite als Beispiel
+
+=== Testausführung mit QF-Test
+
+=== Was im Repository fehlt...
+
+Da jedes Testobjekt sehr individuell ist, kann das Repository unmöglich Schlüsselwörter für ein individuelles Testobjekt liefern. 
+
+Wer bereits in QF-Test geeignete Schlüsselwörter implementiert hat, der kann die Testsuite aus diesem Repository einbinden und über einen geeigneten Testaufruf und eine Excel-Datei lassen sich die ersten Testfälle definieren.
+
+== Entwicklung eigener Testfälle

@@ -1,0 +1,936 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE RootStep>
+<RootStep id="_0" indentation="0" linelength="160" name="root" version="9.0.6">
+<include>qfs.qft</include>
+<include>${default:TESTLIBRARY:}</include>
+<variable name="colTestcaseId">ID</variable>
+<variable name="colTestcaseName">Name</variable>
+<variable name="colTestcaseDescription">Description</variable>
+<variable name="colTestcaseComment">Remarks (test case)</variable>
+<variable name="colTestcaseVerdict">Rating (test case)</variable>
+<variable name="colTeststepId">#</variable>
+<variable name="colTeststepName">Name (test step)</variable>
+<variable name="colTeststepParameters">Instructions (test step)</variable>
+<variable name="colTeststepChecks">Expected results (test step)</variable>
+<variable name="colTeststepComment">Remarks (test step)</variable>
+<variable name="colTeststepVerdict">Rating (test step)</variable>
+<variable name="colTeststepReturnValue">Expected results (test step)</variable>
+<comment>Die Testsuite liefert eine Vorlage das schl&amp;uuml;sselwortbasierte Testen.
+
+Die beiden Implementierungen unterscheiden sich im Wesentlichen darin, wie
+die Schl&amp;uuml;sselw&amp;ouml;rter technisch implementiert sind. In der einen Variante werden
+die Schl&amp;uuml;sselw&amp;ouml;rter als Testfall-Knoten implementiert und im anderen Fall 
+werden Prozeduren verwendet.</comment>
+<TestSet id="_1mkp" interpreter="groovy" name="Smoketests">
+<comment>Dieser Testfallsatz beinhaltet zwei Testaufrufe mit denen Testfälle ausgeführt 
+werden, die in einer gesonderten Excel-Datei zu finden sind. 
+
+Die Idee dahinter ist die, dass Testfälle in der schlüsselwortbasierten 
+Testfalldarstellung außerhalb von QF-Test erstellt werden können und dann mit 
+QF-Test ausgeführt werden. Damit werden im Wesentlichen folgende Vorhgehen 
+unterstützt:
+
+1. Testfälle sollen außerhalb von QF-Test in einem Testmanagementsystem 
+verwaltet werden. Wenn das Testfallmanagementsystem die Testfälle in das 
+Format exportieren kann, dann dient die Excel-Datei als Austauschformat, um 
+Testfälle und Testergebnisse auszutauschen.
+
+2. Testfälle werden durch einen Generator unmittelbar vor der Testausführung
+generiert. Ein konkretes Beispiel ist der Entscheidungstabelleneditor LF-ET.
+Mit LF-ET werden aus einer Entscheidungstabelle konkrete Testfälle generiert 
+und diese können dann mit LF-ET ausgeführt werden. 
+
+3. Die Entwicklung von Testfällen kann ganz allgemein an Personen delegiert 
+werden, die mit QF-Test nicht arbeiten können oder wollen. Häufig haben die 
+Mitarbeiter in den Fachbereichen das Wissen, um vor allem gute Testfälle zu 
+entwicklen, da sie über viel Erfahrung verfügen. Diese Mitarbeiter haben oft
+Berührungsängste, wenn sie ein Testautomatisierungswerkzeug verwenden sollen,
+da sie sofort an Programmierung denken. Hier kann Excel ein Werkzeug sein, 
+dass ihnen vertraut ist und wenn die Schlüsselwörter als "Schablonen" zur
+Verfügung gestellt werden, dann sind die Mitarbeiter in der Lage diese zu 
+nutzen.</comment>
+<TestCall calledtest="keyword-driven-tests_multipleSheets" id="_1mt2">
+<variable name="multipleDirectory">${qftest:suite.dir}/testcases</variable>
+<variable name="multipleSources">SampleTestsuite.xlsx##Vergleiche</variable>
+</TestCall>
+<TestCall calledtest="keyword-driven-test_procedures" id="_1mtG">
+<variable name="file">${qftest:suite.dir}/testcases/SampleTestsuite.xlsx</variable>
+<variable name="sheet">Vergleiche</variable>
+</TestCall>
+</TestSet>
+<TestSet id="kwd_test-set" name="keyword-driven-test_procedures" uid="_1mjo">
+<variable name="SUITE_SETUP"/>
+<variable name="SUITE_TEARDOWN"/>
+<variable name="TEST_SETUP"/>
+<variable name="TEST_TEARDOWN"/>
+<variable name="file"/>
+<variable name="sheet"/>
+<comment>Implementierung des Frameworks mit Prozedur-Knoten als Schl&amp;uuml;sselw&amp;ouml;rter.
+
+Dieser Testfallsatz-Knoten ist ein Template zur Nutzung der 
+schl&amp;uuml;sselwortbasierten Testfalldarstellung. In diesem Testfallsatz werden 
+in zwei Schleifen Testf&amp;auml;lle und Testschritte aus einem Testskript durchgef&amp;uuml;hrt.
+Das Testskript kann mit Hilfe von Parametern referenziert werden und ist eine
+Tabelle innerhalb einer Excel-Datei.</comment>
+<SetupSequence id="_1mjp" name="prepare test script execution">
+<BasicSequence id="_1mjq" name="Initialize the loops">
+<ProcedureCall id="_1mjr" procedure="keyword-driven-testing.common.testcontrol.initDataLoops">
+<variable name="file">$(file)</variable>
+<variable name="sheet">$(sheet)</variable>
+</ProcedureCall>
+</BasicSequence>
+<BasicSequence id="_1mjs" name="Register the Listener">
+<ProcedureCall id="_1mjt" procedure="keyword-driven-testing.procedures.listener.addFrameworkListener"/>
+</BasicSequence>
+<BasicSequence id="_1mju" name="You may start SUT here for each test script">
+<IfSequence id="_1mjv" name="Suite Setup is defined" test="$[&#34;&#34; != &#34;${default:SUITE_SETUP:}&#34;.strip(&#34; &#34;)]">
+<ProcedureCall id="_1mjw" procedure="$[&#34;$(SUITE_SETUP)&#34;.strip(&#34; &#34;)]"/>
+</IfSequence>
+</BasicSequence>
+</SetupSequence>
+<TestSet id="kwd_test-script" name="$(file) - $(sheet)" uid="_1mjx">
+<comment>Testdurchf&amp;uuml;hrung der Testf&amp;auml;lle in Tabelle $(sheet) aus der Datei $(file).
+
+Mit Start dieses Testfallsatz ist die Auswertung der Tabelle ($(sheet)) 
+abgeschlossen und die Schleifenk&amp;ouml;rper k&amp;ouml;nnen entsprechend parametriert werden,
+so dass die TestfÃ¤lle und ihre Testschritte korrekt ausgefÃ¼hrt werden.</comment>
+<DataDriver id="_1mjy" name="Outer loop for test cases">
+<ExcelDataBinder excelfile="$(file)" id="_1mjz" intervals="$(testcases)" name="test cases in test script" sheetname="$(sheet)" var="looperTestcase"/>
+</DataDriver>
+<SetupSequence id="_1mj+">
+<BasicSequence id="_1mj-" name="You may start SUT here for each testcase">
+<IfSequence id="_1mk0" name="Test Setup is defined" test="$[&#34;&#34; != &#34;${default:TEST_SETUP:}&#34;.strip(&#34; &#34;)]">
+<ProcedureCall id="_1mk1" procedure="$[&#34;$(TEST_SETUP)&#34;.strip(&#34; &#34;)]"/>
+</IfSequence>
+</BasicSequence>
+</SetupSequence>
+<TestCase condition="!${TestcaseRange_$(looperTestcase):skipTestcase}" expectedfail="${TestcaseRange_$(looperTestcase):expectToFail}" id="kwd_test-case"
+          interpreter="groovy" name="$($(colTestcaseId)) - $($(colTestcaseName))" uid="_1mkf">
+<comment>$($(colTestcaseDescription))</comment>
+<RepeatSequence count="$[1+${TestcaseRange_$(looperTestcase):last}-${TestcaseRange_$(looperTestcase):first}]" id="_1mki" name="teststeps" var="step">
+<IfSequence id="kwd_test-step" test="not ${default:BLOCK_FURTHER_TESTCASE_EXECUTION:false}" uid="_1mkj">
+<TestStep id="_1mkk" name="$(keyword_path)">
+<comment>${default:keyword_parameters:}</comment>
+<IfSequence id="_1mkl" test="$[&#34;&#34; == &#34;$(keyword_retval)&#34;]">
+<ProcedureCall id="kwd_keyword" procedure="$(keyword_path)" uid="_1mkm"/>
+<ElseSequence id="_1mkn">
+<ProcedureCall id="kwd_keyword" procedure="$(keyword_path)" retvarname="$(keyword_retval)" uid="_1mko"/>
+</ElseSequence>
+</IfSequence>
+</TestStep>
+</IfSequence>
+</RepeatSequence>
+</TestCase>
+<CleanupSequence id="_1mkB">
+<BasicSequence id="_1mkC" name="You may stop SUT here">
+<IfSequence id="_1mkD" name="Test Teardown is defined" test="$[&#34;&#34; != &#34;${default:TEST_TEARDOWN:}&#34;.strip(&#34; &#34;)]">
+<ProcedureCall id="_1mkE" procedure="$[&#34;$(TEST_TEARDOWN)&#34;.strip(&#34; &#34;)]"/>
+</IfSequence>
+</BasicSequence>
+</CleanupSequence>
+</TestSet>
+<CleanupSequence id="_1mkF">
+<BasicSequence id="_1mkG" name="You may stop SUT here">
+<IfSequence id="_1mkH" name="Suite Teardown is defined" test="$[&#34;&#34; != &#34;${default:SUITE_TEARDOWN:}&#34;.strip(&#34; &#34;)]">
+<ProcedureCall id="_1mkI" procedure="$[&#34;$(SUITE_TEARDOWN)&#34;.strip(&#34; &#34;)]"/>
+</IfSequence>
+</BasicSequence>
+<BasicSequence id="_1mkJ" name="Release all Listeners">
+<ServerScriptStep id="_1mkK" interpreter="groovy">
+<code>rc.clearTestRunListeners()</code>
+</ServerScriptStep>
+</BasicSequence>
+</CleanupSequence>
+</TestSet>
+<TestSet id="_1mIa" name="keyword-driven-tests_multipleSheets">
+<variable name="SUITE_SETUP"/>
+<variable name="SUITE_TEARDOWN"/>
+<variable name="TEST_SETUP"/>
+<variable name="TEST_TEARDOWN"/>
+<variable name="multipleDirectory"/>
+<variable name="multipleSources"/>
+<comment>Container zur Ausf&amp;uuml;hrung von mehreren Excel-Sheets in einem Testdurchlauf</comment>
+<SetupSequence id="_1mIb" name="prepare calls">
+<ServerScriptStep id="_1mIg" interpreter="groovy" name="script_readSources">
+<code>def strDirectory = rc.getStr("multipleDirectory")
+def astrSources = rc.getStr("multipleSources").split(";;")
+
+astrSources.eachWithIndex() { it, i -&gt;
+  rc.setGlobal("""multipleFile_${i}""", """${strDirectory}/${it.split("##")[0]}""")
+  rc.setGlobal("""multipleSheet_$i""", it.split("##")[1].replaceFirst(/Testf.*lle/, "TestfÃ¤lle"))
+}
+
+rc.setGlobal("multipleCalls", astrSources.length)</code>
+</ServerScriptStep>
+</SetupSequence>
+<TestSet id="_1mIc" name="loop for testsources">
+<comment>Container f&amp;uuml;r den Durchlauf von ein konkretes Excel-Sheet</comment>
+<DataDriver id="_1mId">
+<LoopDataBinder count="$(multipleCalls)" id="_1mIe" name="calls" var="looperCall"/>
+</DataDriver>
+<TestCall calledtest="...keyword-driven-test_procedures" id="_1mIf">
+<variable name="file">$(multipleFile_$(looperCall))</variable>
+<variable name="sheet">$(multipleSheet_$(looperCall))</variable>
+</TestCall>
+</TestSet>
+</TestSet>
+<PackageRoot id="_3">
+<Package id="_PS" name="keyword-driven-testing">
+<comment>Dieses Paket beinhaltet die Prozeduren fÃ¼r die beiden Implementierungen der
+Frameworks zur schlÃ¼sselwortbasierten Testfalldarstellung.</comment>
+<Package id="_Pv" name="common">
+<comment>Die Prozeduren unter halb dieses Pakets werden von beiden Implemntierungen 
+genutzt.</comment>
+<Package id="_OH" name="testcontrol">
+<comment>In dem Paket befinden sich Prozeduren, die allgemein der Teststeuerung dienen.
+</comment>
+<Procedure id="_OK" name="initDataLoops">
+<variable name="file"/>
+<variable name="sheet"/>
+<comment>Die Prozedur initialisiert die Variablen, die zur TestdurchfÃ¼hrung dienen.
+
+Eine Gemeinsamkeit der beiden Implementierungen des Frameworks ist die Nutzung 
+von zwei Schleifen, bei denen die Ã¤uÃ&#159;ere Schleife Ã¼ber die TestfÃ¤lle und die 
+innere Ã¼ber die Testschritte eines jeden Testfalls iteriert.
+
+Diese Prozedur analysiert die Tabelle, in der die TestfÃ¤lle dokumentiert sind
+und versorgt die Variablen, die in den Iterationsbereichen der beiden Schleifen
+hinterlegt sind, mit den entsprechenden Werten.
+
+@param    file                In dem Parameter ist der voll qualifizierte Name
+                              der Exceldatei zu Ã¼bergeben, in dem sich die 
+                              Tabelle mit den TestfÃ¤llen befindet
+@param    sheet               In dem Parameter ist der Name der Tabelle zu 
+                              Ã¼bergeben, die als Testskript interpretiert 
+                              werden soll. Der Name der Tabelle muss zu der
+                              Angabe der Datei im Parameter &lt;em&gt;file&lt;/em&gt;
+                              passen, damit die AusfÃ¼hrung erfolgreich sein 
+                              kann.</comment>
+<ServerScriptStep id="_OL" interpreter="groovy" name="proc_initDataLoops">
+<code>
+import de.qfs.apps.qftest.shared.exceptions.TestException
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.apache.poi.xssf.usermodel.XSSFSheet
+
+FileInputStream file = new FileInputStream(new File(rc.getStr("file")))
+def xlsxWorkbook = new XSSFWorkbook(file)
+def xlsxSheet = xlsxWorkbook.getSheet(rc.getStr("sheet"))
+
+//  Suche nach den Spaltenindizes
+def iColumnTestcaseId = getColumnNumber(rc.getStr("colTestcaseId"), xlsxSheet)
+def iColumnTestcaseDesc = getColumnNumber(rc.getStr("colTestcaseDescription"), xlsxSheet)
+def iColumnTeststepId = getColumnNumber(rc.getStr("colTeststepId"), xlsxSheet)
+
+
+if(     ( -1 &lt; iColumnTestcaseId  ) 
+    &amp;&amp;  ( -1 &lt; iColumnTeststepId  ) )
+{ //  In diesem Fall wurden beide Spalten gefunden und es verden die Iterationsbereiche ermittelt.
+  def aTestCaseHeader = []
+  
+  xlsxSheet.rowIterator().eachWithIndex() { it, i -&gt;
+    if(0 &lt; i)
+    { //  Kopfzeile soll Ã¼bersprungen werden, daher die Bedingung.
+      rc.logMessage("&gt;"+it.getCell(iColumnTestcaseId).toString().trim()+"&lt;")
+      if((null != it.getCell(iColumnTestcaseId)) &amp;&amp; (!"".equals(it.getCell(iColumnTestcaseId).toString().trim())))
+      { //  In der Zeile beginnt ein neuer Testfall. Zeilennummer und Start werden festgehalten. 
+        aTestCaseHeader.add(i-1)
+        rc.setProperty("""TestcaseRange_${aTestCaseHeader.last()}""".toString(), "first", aTestCaseHeader.last())
+        rc.setProperty("""TestcaseRange_${aTestCaseHeader.last()}""".toString(), "expectToFail", it.getCell(iColumnTestcaseDesc).toString().contains("NEGATIVE_TEST"))
+        rc.setProperty("""TestcaseRange_${aTestCaseHeader.last()}""".toString(), "skipTestcase", it.getCell(iColumnTestcaseDesc).toString().contains("SKIP_TEST"))
+      }
+      rc.setProperty("""TestcaseRange_${aTestCaseHeader.last()}""".toString(), "last",  i-1)
+    }
+  }
+  
+  //  In testcases wird der Interationsbereich der TestfÃ¤lle festgehalten
+  rc.setGlobal("testcases", aTestCaseHeader.toString().substring(1,aTestCaseHeader.toString().length()-1))
+}
+else
+{
+  rc.logError("Der Header des ExcelSheet entspricht nicht den Anforderungen. Es werden die Spalten 'ID' und '#' erwartet.")
+}
+file.close()
+
+
+/**
+ *  Die Hilfsfunktion sucht in der Kopfzeile eines Tabellenblattes nach einer 
+ *  Spalte, die mit &lt;em&gt;strName&lt;/em&gt; Ã¼berschrieben ist.
+ *
+ *  @return   Die Funktion liefert den Spaltenindex zurÃ¼ck. Dieser ist -1, falls
+ *            keine Spalte mit der Ã?berschrift gefunden wurde.
+ */
+int getColumnNumber(String strName, def xlsxSheet)
+{
+  int retval = -1;
+  xlsxSheet.getRow(0).cellIterator().eachWithIndex() { it, i -&gt;
+    retval = it.toString().equals(strName)?i:retval; 
+  }
+  return retval;
+}
+</code>
+</ServerScriptStep>
+</Procedure>
+</Package>
+</Package>
+<Package id="_Pw" name="procedures">
+<comment>Paket fÃ¼r Prozeduren der Implementierung, bei der SchlÃ¼sselwÃ¶rter 
+Prozedur-Knoten sind.</comment>
+<Package id="_OQ" name="listener">
+<comment>Die Prozeduren in diesem Paket dienen der Registrierung von TestRunListenern</comment>
+<Procedure id="_1mkT" name="addFrameworkListener">
+<variable name="logIntoCopy">true</variable>
+<comment>Registrierung des DefaultFrameworkListener.
+
+Der DefaultFrameworkListener ist eine Implementierung der Schnittstelle 
+&lt;code&gt;de.qfs.apps.qftest.extensions.qftest.TestRunListener&lt;/code&gt;. Die konkrete
+Implementierung beinhaltet FunktionalitÃ¤t zum Management des Datenhaushalt, der
+zur TestdurchfÃ¼hrung benÃ¶tigt wird. ZusÃ¤tzliuch werden auch Testergebnisse
+in der Exceldatei protokolliert.
+
+Genauere Informationen zur Funktion lassen sich in der Entwicklerdokumentation
+des QF-Test Plugin "TestRunListener" von der Firma G. Muth Partners finden.</comment>
+<ServerScriptStep id="_1mkU" interpreter="groovy" name="script_addFrameworkListener">
+<code>import de.qfs.apps.qftest.extensions.qftest.AbstractTestRunListener;
+import de.qfs.apps.qftest.extensions.qftest.TestRunEvent;
+import de.qfs.apps.qftest.extensions.qftest.TestSuiteNode;
+import de.qfs.apps.qftest.run.AbstractRunContext;
+import de.qfs.apps.qftest.shared.exceptions.TestException;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Iterator;
+
+
+rc.addTestRunListener(new DefaultFrameworkListener(rc.context, rc.getStr("file"), rc.getStr("sheet"), DefaultFrameworkListener.SEPARATE_LOGFILE));
+
+
+/*!
+ *  \brief      The class handles data management and data output for the framework.
+ *
+ *  The class plays a crucial role in the framework for processing 
+ *  keyword-based test cases, as it performs the following tasks:
+ *    \li   Setting local variables whose values are required for processing 
+ *          the keywords.
+ *    \li   Write down the results of the test. This can be done either in the 
+ *          Excel document or in a separate file.
+ *
+ * 	@author   Dirk O. Schweier   
+ *
+ */
+public class DefaultFrameworkListener extends AbstractTestRunListener
+{
+  public static final int NO_LOGGING = 0;
+  public static final int SEPARATE_LOGFILE = 1;
+  public static final int SAME_FILE_LOGGING = 2;
+
+  /*!
+   *  \brief    In dem Attribut wird der RunContext von QF-Test gehalten.
+   *
+   *  Der RunContext ist einer Klasse, die QF-Test bereitstellt, um in Skripten
+   *  auf Informationen während der Testdurchführung zu gewinnen. Diese Klasse
+   *  benötigt eine Referenz auf die Instanz des RunContext um auf Variablen
+   *  des Frameworks zugreifen zu können. Dazu gehören zum Beispiel die
+   *  Zähler der Schleifen, die für den aktuellen Testfall und Testschritt
+   *  stehen.
+   */
+  protected AbstractRunContext rc;
+
+  private XSSFWorkbook xResultFile = null
+  private XSSFSheet xTestSuite = null
+  private String strResultFile;
+  private String strResultFileSheet;
+
+  private int iColumnTestcaseId           = -1
+  private int iColumnTestcaseName         = -1
+  private int iColumnTestcaseDescription  = -1
+  private int iColumnTestcaseComment      = -1
+  private int iColumnTestcaseVerdict      = -1
+  private int iColumnTeststepId           = -1
+  private int iColumnTeststepName         = -1
+  private int iColumnTeststepParameters   = -1
+  private int iColumnTeststepReturnValue  = -1
+  private int iColumnTeststepComment      = -1
+  private int iColumnTeststepVerdict      = -1
+
+
+  public DefaultFrameworkListener(AbstractRunContext rc, String strTestScriptFile, String strTestScriptSheet, int iLoggingMode)
+  {
+    this.rc = rc
+    this.strResultFile = strTestScriptFile
+    this.strResultFileSheet = strTestScriptSheet
+    this.xTestSuite = (new XSSFWorkbook(new FileInputStream(strTestScriptFile))).getSheet(strTestScriptSheet)
+
+    switch(iLoggingMode)
+    {
+      case DefaultFrameworkListener.SEPARATE_LOGFILE :  this.strResultFile = """${strTestScriptFile - ~/\.\w+$/}-${this.rc.lookup("qftest", "runid", false)}.xlsx"""
+                                                        if(new File(this.strResultFile).exists()) {
+                                                          this.xResultFile = new XSSFWorkbook(new FileInputStream(this.strResultFile))
+                                                          break
+                                                        }
+      case DefaultFrameworkListener.SAME_FILE_LOGGING : this.xResultFile = new XSSFWorkbook(new FileInputStream(strTestScriptFile))
+                                                        break
+      case DefaultFrameworkListener.NO_LOGGING :        /* nothing to do */
+                                                        break
+    }
+  }
+
+
+  /*!
+   *  \brief    Standardkonstruktor der Klasse
+   *
+   *  Dieser Konstruktor ist der Standardkonstruktor der Klasse
+   */
+  @Deprecated
+  public DefaultFrameworkListener(AbstractRunContext rc)
+  {
+      this(rc, null, null, false);
+  }
+
+
+  /*!
+   *  \brief    Konstruktor mit Parametern für das Schreiben der Ergebnisse.
+   *
+   *  Dieser Konsrtruktor bietet zusätzliche Möglichkeiten der
+   *  Parameterübergabe. Mit dem Konstruktor wird auch gleich die Funktion
+   *  zum Schreiben der Ergebnisse initialisiert.
+   *
+   *  \param    rc                      In dem Parameter wird die Instanz des RunContext übergeben. Dieser wird von der Klasse benötigt, um Informationen im Context der Testdurchführung ermitteln zu können.
+   *  \param    strTestScriptFile       In dem Parameter muss der Aufrufer den vollständigen Dateinamen der Datei übergeben, in der die Testfälle hinterlegt sind.
+   *  \param    strTestScriptSheet      In dem Parameter wird der Name von dem Arbeitsblatt übergeben, in dem die Testfälle hinterlegt sind.
+   *  \param    bSeperateLogFile        Mit dem Parameter kann entschieden werden, ob die Ergebnisse in die übergebene Datei oder eine Kopie geschrieben werden sollen.
+   */
+  @Deprecated
+  public DefaultFrameworkListener(AbstractRunContext rc, String strTestScriptFile, String strTestScriptSheet, boolean bSeperateLogFile)
+  {
+    this.rc = rc
+  
+    try
+    {
+      this.strResultFileSheet = strTestScriptSheet
+      if(!"".equals(strTestScriptFile.trim()))
+      {
+        if(bSeperateLogFile)
+        { //  In diesem Fall soll ein seperates Logfile angelegt werden.
+          try {
+            this.strResultFile = """${strTestScriptFile - ~/\.\w+$/}-${this.rc.lookup("qftest", "runid", false)}.xlsx"""
+          }
+          catch (TestException e) {
+            this.rc.logError( e.getMessage().toString() )
+            this.strResultFile = strTestScriptFile
+          }
+        }
+        else
+          this.strResultFile = strTestScriptFile
+
+        if(new File(this.strResultFile).exists()) {
+          this.xResultFile = new XSSFWorkbook(new FileInputStream(this.strResultFile));
+        }
+        else {
+          this.xResultFile = new XSSFWorkbook(new FileInputStream(strTestScriptFile));
+        }
+
+      }
+      else
+        this.xResultFile = null;
+    }
+    catch (Exception e) {
+      this.rc.logError( e.getMessage().toString() );
+      this.xResultFile = null;
+    }
+  }
+
+  /*!
+   *  \brief    Die Methode wandelt den einen Teststatus in einen String um
+   *  \param    iQFTestStatus          In dem Parameter wird 
+   * @return
+   */
+  protected String getTeststatusAsResult(int iQFTestStatus)
+  {
+    switch (iQFTestStatus) {
+      case 0:   return "passed";
+      case 1:   return "Warning";
+      case 2:   return "failed";
+      case 3:   return "blocked";
+      case -1:  return "skipped";
+      case -2:  return "not implemented"; 
+    }
+    return "unknown (".concat(String.valueOf(iQFTestStautus)).concat(")");
+  }
+
+  protected String getTeststatusInMessage(int iQFTestStatus)
+  {
+    switch (iQFTestStatus) {
+      case 0:   return "Meldung";
+      case 1:   return "Warnung";
+      case 2:   return "Fehler";
+      case 3:   return "Blockierung";
+      case -1:  return "Auslassung";
+      case -2:  return "Auslassung"; }
+    return "Meldung";
+  }
+
+
+  /*!
+   *  \brief    Getter-Methode, die zu einer Variablen den Wert aus dem RunContext ermittelt
+   *
+   *  Diese Methode entspricht einem &lt;code&gt;rc.lookup&lt;/code&gt;, wie es aus QF-Test
+   *  bekannt ist. Der Grund für die Definition einer eigenen Methode ist in der
+   *  Kapselung des Exception-Handlings begründet.
+   *
+   *  \param    strVarname    In dem Parameter ist der Name der Variablen zu
+   *                          übergeben, dessen Wert es zu ermitteln gilt.
+   *  \param    bExpand       über den Parameter kann der Aufrufer
+   *                          signalisieren, ob der Name rekursiv aufgelï¿½st
+   *                          werden soll oder auch nicht.
+   *
+   *  \return   Die Methode liefert den Wert der Variablen &lt;em&gt;strVarname&lt;/em&gt;
+   *            als Zeichenkette zurück. Sollte die Variable nicht bekannt sein,
+   *            wird der Wert &lt;code&gt;null&lt;/code&gt; zurückgegeben.
+   *
+   *  \see      org.rulebasedgroup.qftest.plugin.keyworddriven.listener.DefaultFrameworkListener#rc
+   */
+  private String getStringValueFromRunContext(String strVarname, boolean bExpand)
+  {
+    return this.getStringValueFromRunContextOrDefault(strVarname, bExpand, null)
+  }
+
+  private String getStringValueFromRunContextOrDefault(String strVarname, boolean bExpand, String strDefault)
+  {
+    try {
+      return """${this.rc.lookup(strVarname, bExpand)}"""
+    }
+    catch (TestException e) {
+      this.rc.logMessage( e.getMessage().toString() )
+    }
+
+    return strDefault
+  }
+
+
+  /*!
+   *  \brief    Getter-Methode, die zu einer Variablen den Wert als &lt;code&gt;int&lt;/code&gt; aus dem RunContext ermittelt
+   *
+   *  Diese Methode entspricht einem &lt;code&gt;rc.lookup&lt;/code&gt;, wie es aus QF-Test
+   *  bekannt ist. Der Grund für die Definition einer eigenen Methode ist in der
+   *  Kapselung des Exception-Handlings begründet.
+   *
+   *  \param    strVarname    In dem Parameter ist der Name der Variablen zu
+   *                          übergeben, dessen Wert es zu ermitteln gilt.
+   *  \param    bExpand       Über den Parameter kann der Aufrufer
+   *                          signalisieren, ob der Name rekursiv aufgelï¿½st
+   *                          werden soll oder auch nicht.
+   *
+   *  \return   Die Methode liefert den Wert der Variablen &lt;em&gt;strVarname&lt;/em&gt;
+   *            als ganzzahligen Wert zurück. Sollte die Variable nicht bekannt
+   *            sein, wird der Wert &lt;code&gt;-1&lt;/code&gt; zurückgegeben.
+   *
+   *  \see      org.rulebasedgroup.qftest.plugin.keyworddriven.listener.DefaultFrameworkListener#rc
+   */
+  private int getIntValueFromRunContext(String strVarname, boolean bExpand)
+  {
+    return this.getIntValueFromRunContextOrDefault(strVarname, bExpand, -1)
+  }
+  
+  private int getIntValueFromRunContextOrDefault(String strVarname, boolean bExpand, int iDefault)
+  {
+    try {
+      return Integer.parseInt("""${this.rc.lookup(strVarname, bExpand)}""".trim())
+    }
+    catch (TestException e) {
+      this.rc.logMessage( """getIntValueFromRunContext($strVarname, $bExpand, $iDefault): ${e.getMessage().toString()}""" );
+    }
+
+    return iDefault;
+  }
+
+
+  /*!
+   *  \brief    Getter-Methode für die zu setzenden Parameter des Testschritts
+   *
+   *  \note     Der Listener wurde für ein spezielles Framework zum
+   *            schlüsselwortbasierten Testen entwickelt. Der Zugriff auf
+   *            Umgebungsvariablen wurde in dieser Klasse gekapselt, um späteren
+   *            Anwendern die Nutzung der Klasse über Vererbung zu erleichtern.
+   *
+   *  \return   Die Methode liefert über den RunContext den Wert, der unter
+   *            dem Namen "colTeststepParameters" zu finden ist.
+   */
+  @Deprecated
+  protected String getCurrentTeststepParameters()
+  {
+    // Sollte Deprecated sein, die Daten jetzt direkt aus der Testsuite gelesen werden müssen.
+    try {
+      return this.rc.lookup("""${this.rc.lookup("colTeststepParameters", true)}""", true)
+    }
+    catch (TestException e) {
+      this.rc.logError( e.getMessage().toString() );
+    }
+
+    return "";
+  }
+
+  /*!
+   *  \brief    Getter-Methode liefert die Zeile, in der der Testfall und seine Ergebnisse stehen.
+   *
+   *  \return   Die Methode liefert den Zeilenindex, der für die Zeile des
+   *            aktuell ausgeführten Testfalls steht, als ganzzahligen Wert
+   *            zurück.
+   */
+  protected int getCurrentRowIndexTestcase()
+  {
+    return this.getIntValueFromRunContext("looperTestcase", true)+1;
+  }
+
+  /*!
+   *  \brief    Getter-Methode liefert die Zeile, in der der Testschritt und seine Ergebnisse stehen.
+   *
+   *  \return   Die Methode liefert den Zeilenindex, der für die Zeile des
+   *            aktuell ausgeführten Testchritts steht, als ganzzahligen Wert
+   *            zurück.
+   */
+  protected int getCurrentRowIndexTeststep()
+  {
+    return this.getCurrentRowIndexTestcase() + this.getIntValueFromRunContextOrDefault("step", false, 0);
+  }
+
+  protected int getColumnIndex(String search)
+  {
+    int retval = -1;
+    
+    if (this.xTestSuite != null)
+    {
+      int i = 0;
+      Iterator&lt;Cell&gt; it = this.xTestSuite.getRow(0).cellIterator();
+
+      while ((-1 == retval) &amp;&amp; (it.hasNext()))
+      {
+        if (search.equals(((Cell)it.next()).getStringCellValue()))
+          retval = i;
+        i++;
+      }
+    }
+
+    if(-1 == retval)
+      this.rc.logWarning("""getColumnIndex(): Index für die Spalte '$search' wird auf den Wert '$retval' gesetzt.""")
+    else
+      this.rc.logMessage("""getColumnIndex(): Index für die Spalte '$search' wird auf den Wert '$retval' gesetzt.""")
+
+    return retval;
+  }
+
+  public int getColumnTestcaseId()
+  {
+    if(-1 == this.iColumnTestcaseId)
+      this.iColumnTestcaseId = this.getColumnIndex(this.rc.lookup("colTestcaseId", true).toString())
+    return this.iColumnTestcaseId
+  }
+
+  public int getColumnTestcaseName()
+  {
+    if(-1 == this.iColumnTestcaseName)
+      this.iColumnTestcaseName = this.getColumnIndex(this.rc.lookup("colTestcaseName", true).toString())
+    return this.iColumnTestcaseName
+  }
+
+  public int getColumnTestcaseDescription()
+  {
+    if(-1 == this.iColumnTestcaseDescription)
+      this.iColumnTestcaseDescription = this.getColumnIndex(this.rc.lookup("colTestcaseDescription", true).toString())
+    return this.iColumnTestcaseDescription
+  }
+
+  public int getColumnTestcaseComment()
+  {
+    if(-1 == this.iColumnTestcaseComment)
+      this.iColumnTestcaseComment = this.getColumnIndex(this.rc.lookup("colTestcaseComment", true).toString())
+    return this.iColumnTestcaseComment
+  }
+
+  public int getColumnTestcaseVerdict()
+  {
+    if(-1 == this.iColumnTestcaseVerdict)
+      this.iColumnTestcaseVerdict = this.getColumnIndex(this.rc.lookup("colTestcaseVerdict", true).toString())
+    return this.iColumnTestcaseVerdict
+  }
+
+  public int getColumnTeststepId()
+  {
+    if(-1 == this.iColumnTeststepId)
+      this.iColumnTeststepId = this.getColumnIndex(this.rc.lookup("colTeststepId", true).toString())
+    return this.iColumnTeststepId
+  }
+
+  public int getColumnTeststepName()
+  {
+    if(-1 == this.iColumnTeststepName)
+      this.iColumnTeststepName = this.getColumnIndex(this.rc.lookup("colTeststepName", true).toString())
+    return this.iColumnTeststepName
+  }
+
+  public int getColumnTeststepParameters()
+  {
+    if(-1 == this.iColumnTeststepParameters)
+      this.iColumnTeststepParameters = this.getColumnIndex(this.rc.lookup("colTeststepParameters", true).toString())
+    return this.iColumnTeststepParameters
+  }
+
+  public int getColumnTeststepReturnValue()
+  {
+    if(-1 == this.iColumnTeststepReturnValue)
+      this.iColumnTeststepReturnValue = this.getColumnIndex(this.rc.lookup("colTeststepReturnValue", true).toString())
+    return this.iColumnTeststepReturnValue
+  }
+
+  public int getColumnTeststepComment()
+  {
+    if(-1 == this.iColumnTeststepComment)
+      this.iColumnTeststepComment = this.getColumnIndex(this.rc.lookup("colTeststepComment", true).toString())
+    return this.iColumnTeststepComment
+  }
+
+  public int getColumnTeststepVerdict()
+  {
+    if(-1 == this.iColumnTeststepVerdict)
+      this.iColumnTeststepVerdict = this.getColumnIndex(this.rc.lookup("colTeststepVerdict", true).toString())
+    return this.iColumnTeststepVerdict
+  }
+
+
+
+
+
+  /*!
+   *  \brief    Die Methode erzeugt Variablen, die zur Ausführung des Testschritts erforderlich sind
+   *
+   *  Die Methode wertet aus, welche Variablen zur Ausführung eines Testschritts
+   *  erzeugt werden müssen und legt diese an.
+   *
+   *  Die Methode geht davon aus, dass die Variablen, die für die Ausführung
+   *  eines Testschritts erforderlich sind, als String im Testfall dokumentiert
+   *  werden.
+   */
+  protected void generateTeststepSpecificVariables()
+  {
+    String strParameters = this.xTestSuite.getRow(this.getCurrentRowIndexTeststep()).getCell(this.getColumnTeststepParameters()).toString()
+    if(!("".equals(strParameters.trim())))
+    { //  In diesem Fall kann davon ausgegangen werden, dass mindestens ein Parameter zu finden ist.
+      String[] astrParameter = strParameters.split(";;");
+      for(int i=0; i &lt; astrParameter.length; ++i)
+      {
+        String[] astrTupel = astrParameter[i].split(":=");
+        if(2 == astrTupel.length)
+        {
+          String strKey = astrTupel[0].trim();
+          String strValue = astrTupel[1].trim();
+
+          if(!(("".equals(strKey))||("".equals(strKey))))
+          { //  In diesem Fall werden beide Teile als gï¿½ltige Werte angesehen.
+            if(strKey.toUpperCase().equals(strKey))
+              this.rc.setGlobal(strKey, strValue)
+            else
+              this.rc.setLocal(strKey, strValue)
+          }
+          else
+          {
+            // TODO Hier fehlt aktuell eine Fehlerbehandlung
+          }
+        }
+      }
+    }
+  }
+  
+  protected void evaluateTeststepData()
+  {
+    this.rc.setLocal("keyword_path", this.xTestSuite.getRow(this.getCurrentRowIndexTeststep()).getCell(this.getColumnTeststepName()).toString().trim())
+    this.rc.setLocal("keyword_parameters", this.xTestSuite.getRow(this.getCurrentRowIndexTeststep()).getCell(this.getColumnTeststepParameters()).toString().trim())
+    this.rc.setLocal("keyword_retval", this.xTestSuite.getRow(this.getCurrentRowIndexTeststep()).getCell(this.getColumnTeststepReturnValue()).toString().trim())
+  }
+  
+  protected void evaluateTestcaseProperties()
+  {
+  }
+
+  protected void updateResultFile(int iColumn, int iRow, String strMessage, boolean bAppend)
+  {
+    if(null != this.xResultFile)
+    { //  Nur in diesem Fall kann mit dem ResultFile gearbeitet werden.
+      XSSFSheet sheet = this.xResultFile.getSheet(strResultFileSheet);
+
+      if(null == sheet.getRow(iRow).getCell(iColumn))
+        sheet.getRow(iRow).createCell(iColumn);
+      if((bAppend)&amp;&amp;(!"".equals(sheet.getRow(iRow).getCell(iColumn).toString().trim())))
+      { //  In diesem Fall wird die Nachricht an den Inhalt in der Zelle angehängt.
+        sheet.getRow(iRow).getCell(iColumn).setCellValue(sheet.getRow(iRow).getCell(iColumn).getStringCellValue().concat("\n".concat(strMessage)));
+      }
+      else
+        sheet.getRow(iRow).getCell(iColumn).setCellValue(strMessage);
+    }
+  }
+
+  /**
+   *  \brief
+   */
+  protected void saveResultFile()
+  {
+    try
+    {
+      //  Schreiben des Workbook in die Datei
+      FileOutputStream destination = new FileOutputStream(this.strResultFile);
+      this.xResultFile.write(destination);
+      destination.close();
+
+      //  Einlesen der gesicherten Datei
+      this.xResultFile = new XSSFWorkbook(new FileInputStream(this.strResultFile));
+    }
+    catch (Exception e)
+    {
+      this.xResultFile = null;
+    }
+  }
+
+
+
+  /*!
+   *  \brief    Die Methode wird aktiv, wenn ein Testschritt betreten wird.
+   *
+   *  Diese Methode wird während der Testdurchführung immer dann aufgerufen,
+   *  wenn ein QF-Test-Knoten betreten wird. Aus Sicht des Frameworks übernimmt
+   *  die Methode die Aufgabe, darauf zu prüfen, ob ein Testschritt betreten
+   *  wird. Genau in diesem Fall wird die Methode zur Erzeugung der benötigten
+   *  Parameter aufgerufen.
+   *
+   *  @param    event         In dem Parameter wird ein Objekt übergeben, das
+   *                          Informationen zum aktuellen Status und Fortschritt
+   *                          der Testdurchführung gibt.
+   *
+   *
+   *  \see      org.rulebasedgroup.qftest.plugin.keyworddriven.listener.AbstractFrameworkListener#nodeEntered(de.qfs.apps.qftest.extensions.qftest.TestRunEvent)
+   *  \see      org.rulebasedgroup.qftest.plugin.keyworddriven.listener.DefaultFrameworkListener#generateTeststepSpecificVariables()
+   */
+  public void nodeEntered(TestRunEvent event)
+  {
+    switch(event.getNode().getId())
+    {
+      case "kwd_test-step" :  this.evaluateTeststepData()
+                              break
+      case "kwd_keyword" :    this.generateTeststepSpecificVariables();
+                              break;
+    }
+  }
+
+
+  public void nodeExited(final TestRunEvent event) {
+    switch (event.getNode().getId()) {
+      case "kwd_test-case":
+        this.updateResultFile(this.getColumnTestcaseVerdict(), this.getCurrentRowIndexTestcase(), this.getTeststatusAsResult(event.getState()), false)
+        this.updateResultFile(this.getColumnTestcaseComment(), this.getCurrentRowIndexTestcase(), """Ergebnis: ${event.getExceptions()} Exceptions, ${event.getErrors()} Fehler, ${event.getWarnings()} Warnungen""", true)
+        this.saveResultFile()
+        this.rc.setGlobal("BLOCK_FURTHER_TESTCASE_EXECUTION", "false")
+        break;
+      case "kwd_test-step":
+        this.updateResultFile(this.getColumnTeststepVerdict(), this.getCurrentRowIndexTeststep(), this.getTeststatusAsResult(event.getState()), false);
+        break;
+      default:
+        break;
+    }
+  }
+
+  public void problemOccurred(final TestRunEvent event) {
+    String strMessage = "";
+    final TestSuiteNode[] axNode = event.getPath();
+    int iIndex = (axNode != null) ? (axNode.length - 1) : -1;
+    while (-1 &lt; iIndex) 
+    {
+      String id;
+      switch (id = axNode[iIndex].getId()) 
+      {
+        case "kwd_test-case": 
+          this.updateResultFile(this.getColumnTestcaseComment(), this.getCurrentRowIndexTestcase(), """${this.getTeststatusInMessage(event.getLocalState())}: ${event.getMessage()}\n$strMessage""", true);
+          iIndex = -1;
+          continue
+        case "kwd_test-step": 
+          if (TestRunEvent.STATE_EXCEPTION == event.getLocalState() || TestRunEvent.STATE_ERROR == event.getLocalState())
+            this.rc.setGlobal("BLOCK_FURTHER_TESTCASE_EXECUTION", "true")
+          this.updateResultFile(this.getColumnTeststepComment(), this.getCurrentRowIndexTeststep(), """${this.getTeststatusInMessage(event.getLocalState())}: ${event.getMessage()}\n$strMessage""", true);
+          iIndex = -1
+          continue
+        default:
+          break
+      }
+      switch (axNode[iIndex].getType()) 
+      {
+        case "Procedure": {
+            strMessage = ("".equals(strMessage) ? axNode[iIndex].getTreeName() : axNode[iIndex].getTreeName().concat("\n  +-&gt; ").concat(strMessage));
+            break;
+        }
+        default:
+            break;
+      }
+      --iIndex;
+    }
+  }
+}
+</code>
+</ServerScriptStep>
+</Procedure>
+</Package>
+</Package>
+</Package>
+<Package id="_Ow" name="keyword-library">
+<comment>Das Paket ist Container fÃ¼r SchlÃ¼sselwÃ¶rter, die in dem Framework protypisch
+implementiert sind.
+
+GrundsÃ¤tzlich lassen sich in der Implementierung, die Prozeduren als 
+SchlÃ¼sselwÃ¶rter nutzt alle Prozeduren als SchlÃ¼sselwÃ¶rter von dem Testdesigner
+nutzen. Dieses ist aber in der Praxis nicht immer sinnvoll, da die Prozeduren
+teilweise sehr spezielle und kleine Aufgaben erledigen, die dazu fÃ¼hren, dass
+ein Testfall aus eine hihen Anzahl von Testschritten bestÃ¼nde. Damit klar ist,
+welche Prozeduren fachlich als SchlÃ¼sselwÃ¶rter zu interpretieren sind, sollten
+diese auch in einem gesonderten Paket zusammgefasst werden.</comment>
+<Package id="_Oz" name="stub">
+<comment>Paket zur thematischen Gliederung der Prozeduren, die als SchlÃ¼sselwÃ¶rter zu
+verstehen sind.</comment>
+<Procedure id="_O+" name="Testschritt">
+<variable name="bCheck">true</variable>
+<variable name="iLevel">$[rc.ERROR]</variable>
+<variable name="strMessage">Hallo Tester-Welt</variable>
+<comment>SchlÃ¼sselwort zur Simulation von Ergebnissen der Testschritte und TestfÃ¤lle.
+
+Dieses SchlÃ¼sselwort wird von der Testsuite in dem Template fÃ¼r das 
+schlÃ¼sselwortbasierte Testen verwendet. Es ist im Grunde ein einfacher Dummy, 
+dem der Aufrufer mitteilen kann, welches Ergebnis geliefert werden soll und 
+welcher Meldungstext im Protokoll zu finden sein soll.
+
+@param  bCheck      Mit dem boolschen Parameter legt der Audfrufer fest, ob
+                    die PrÃ¼fung als bestanden oder fehlgeschlagen bewertet 
+                    werden soll.
+@param  iLevel      In QF-Test kann einem Check auch ein Level zugewiesen 
+                    werden, der immer dann ausschlaggebend ist, wenn die PrÃ¼fung
+                    als fehlgeschlagen bewertet wird.
+                    &lt;br/&gt;StandardmÃ¤Ã&#159;ig ist eine fehlgeschlagene PrÃ¼fung in 
+                    QF-Test immer eine Fehler. Mit diesem Schalter kann man 
+                    aber auch dafÃ¼r sorgen, dass das Fehlschlagen z.B. als 
+                    Warnung oder Exception behandelt wird.
+                    &lt;br/&gt;Der Ersatzwert fÃ¼r den Parameter ist 
+                    &lt;code&gt;rc.ERROR&lt;/code&gt;.
+@param  strMessage  Der Text, den der Aufrufer in diesem Parameter Ã¼bergibt,
+                    wird im Zusammenhang mit der PrÃ¼fung im Protokoll 
+                    ausgegeben.</comment>
+<ServerScriptStep id="_O-" interpreter="groovy">
+<code>rc.check(rc.getBool("bCheck"), rc.getStr("strMessage"), level:rc.getInt("iLevel"), report:true)</code>
+</ServerScriptStep>
+</Procedure>
+</Package>
+</Package>
+</PackageRoot>
+<ExtraSequence id="_4">
+<ProcedureCall id="_1mjf" procedure="qfs.utils.random.getString">
+<variable name="length">2</variable>
+</ProcedureCall>
+</ExtraSequence>
+<WindowList id="_5"/>
+</RootStep>
