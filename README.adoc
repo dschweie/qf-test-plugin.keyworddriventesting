@@ -1,5 +1,5 @@
 = Keyword Driven Testing mit QF-Test
-:toc:
+:toc: right
 :toc-title: Inhaltsverzeichnis
 
 == Motivation
@@ -12,7 +12,7 @@ Ein Testfall in der schlüsselwortbasierten Testfalldarstellung ist eine Folge v
 
 Eine einfache Syntax für automatisierte Testfälle ist auch hilfreich, wenn konkrete Testfälle durch einenen Generator entwickelt werden sollen. 
 
-In diesem Repository ist eine Implememtierung zu finden, mit der sich die schlüsselwortbasierte Testfalldarstellung mit dem Testausführungswerkzeug https://www.qftest.com/[QF-Test] von der Firma Quality First Software GmbH
+In diesem Repository ist eine Implememtierung zu finden, mit der sich die schlüsselwortbasierte Testfalldarstellung mit dem Testausführungswerkzeug https://www.qftest.com/[QF-Test] von der Firma Quality First Software GmbH realisieren lässt.
 
 == Bestandteile des Repository
 
@@ -27,9 +27,53 @@ Im Wesentlichen besteht der Inhalt aus drei Teilen:
 . Verzeichnis `lib` +
     Mit QF-Test 10 gab es eine Umstellung und die Bibliotheken aus dem Projekt https://poi.apache.org/[Apache POI] werden nicht mehr von QF-Test bereitgestellt. Wer QF-Test 10 nutzt, muss diese Dateien in das https://www.qftest.com/doc/manual/de/tech_scripting_concepts.html?q=jar#sec_plugindir[Plugin-Verzeichnis] von QF-Test kopiert werden.
 
-=== Testsuite als Beispiel
+=== Testfälle in einer Excel-Datei
+
+Auf dem Tabellenblatt `Vergleiche` in der Datei `testcases/SampleTestsuite.xlsx` sind ein paar einfache Testfälle zu finden, die mit QF-Test ausgeführt werden können.
+
+|===
+| ID | Name | Description | # | Name (test step) | Instructions (test step) | Expected results (test step)
+
+| QFT-0001
+| Einfacher Vergleich von Zahlen
+| In dem Testfall werden zwei Zahlen vauf Gleichheit geprüft
+| 1
+| qfs.check.compareTwoNumbers
+| got:=5;;expected:=5
+| 
+
+|
+|
+| 
+| 2
+| qfs.check.compareTwoNumbers
+| got:=1;;expected:=1
+|				
+
+|===
+
+Die ersten drei Spalten sind für die Beschreibung des Testfalls reserviert. Danach folgt eine Gruppe von vier Spalten, die für die einzelnen Testschritte stehen.
+
+Auf die Bedeutung der einzelnen Spalten wird im Kapitel <<Definition von Testfällen>> ausführlicher beschrieben.
 
 === Testausführung mit QF-Test
+
+In der Testsuite `keyword-driven-testing.qft` sind insgesamt drei Testfallsätze enthalten, mit folgenden Funktionen:
+
+* `Smoketests` + 
+    In diesem Testfallsatz sind zwei Testaufrufe, die so parametriert sind, dass die Testfälle aus der Excel-Datei ausgeführt werden könen.
+* `keyword-driven-test_procedures` +
+    Dieser Testfallsatz ist geeignet, um ein Arbeitsblatt mit den erkannten Testfällen auszuführen. Dazu sind zumindest zwei Parameter mit geeigneten Werten zu belegen:
+** `file` : In dem Parameter ist der vollständige Pfad zu der Excel-Datei zu definieren.
+** `sheet` : In dem Parameter ist der Name des Arbeitsblatts zu nennen, das die auszuführenden Testfälle enthält.
+* `keyword-driven-tests_multipleSheets` + 
+    Es kann Sinn machen, die Testfälle auf mehr als ein Arbeitsblatt oder mehrere Excel-Dateien zu verteilen, um die Testfälle z.B. nach Themen zu gliedern. Wenn das der Fall ist, dann kann man mit diesem Testfallsatz Informationen übergeben und dann wird der Testfallsatz `keyword-driven-test_procedures` mehrfach in einer Schleife aufgerufen und ausgeführt. Dieser Testfallsatz benötigt im Kern zwei Informationen:
+** `multipleDirectory` : In dem Parameter ist ein Pfad anzugeben, der allen Excel-Dateien und Arbeitsblättern gemeinsam haben.
+** `multipleSources` : In dem Parameter können mehrere Arbeitsblätter hinterlegt werden, die die Testfälle enthalten, die ausgeführt werden sollen. +
+Zu dem Arbeitsblatt ist immer auch der Dateiname zu nennen, da diese Information nicht automatisch abgeleitet werden kann. Das Format für den Wert ist `<Dateiname>&#35;&#35;<Arbeitsblatt>`. +
+Wenn mehrere Arbeitsblätter genutzt werden sollen, dann sind die einzelnen Angaben durch `;;` zu trennen. + 
+Wichtig ist, das die Zeichen `&#35;` und `;` immer doppelt zu verwenden sind. Damit müssen die Zeichen nicht "escaped" werden, wenn sie im Namen der Datei oder Arbeitsblatt enthalten sind.
+
 
 === Was im Repository fehlt...
 
@@ -38,3 +82,7 @@ Da jedes Testobjekt sehr individuell ist, kann das Repository unmöglich Schlüs
 Wer bereits in QF-Test geeignete Schlüsselwörter implementiert hat, der kann die Testsuite aus diesem Repository einbinden und über einen geeigneten Testaufruf und eine Excel-Datei lassen sich die ersten Testfälle definieren.
 
 == Entwicklung eigener Testfälle
+_Dokumentation wird folgen..._
+
+===  Definition von Testfällen 
+_Dokumentation wird folgen..._
