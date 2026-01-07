@@ -82,7 +82,41 @@ Da jedes Testobjekt sehr individuell ist, kann das Repository unmöglich Schlüs
 Wer bereits in QF-Test geeignete Schlüsselwörter implementiert hat, der kann die Testsuite aus diesem Repository einbinden und über einen geeigneten Testaufruf und eine Excel-Datei lassen sich die ersten Testfälle definieren.
 
 == Entwicklung eigener Testfälle
-_Dokumentation wird folgen..._
+Eine einfache Möglichkeit der Nutzung sind Testfälle auf Basis der Prozeduren, die in der Bibliothek vom Hersteller von QF-Test bereitgestellt werden. 
+
+Die Datei `testcases/SampleTestsuite.xlsx` ist ein guter Ausgangspunkt für eigene Testfälle. Im Kapitel <<Definition von Testfällen>> werden die Funktion der einzelnen Spalten und die Syntax erläutert.
+
+Wenn man bereits eigene Testsuiten mit QF-Test für eigene Testobjekte entwickelt hat, kann die Testsuite einfach als Bibliothek integriert werden. Wie das funktioniert wird im Kapitel <<Integration in eigene Projekte>> erläutert
 
 ===  Definition von Testfällen 
-_Dokumentation wird folgen..._
+Die Spalten, die auf dem Arbeitsblatt für Testfälle erwartet werden, lassen sich in drei Gruppen einteilen, von denen der Test Analyst nur die ersten beiden bearbeiten muss.
+
+. Spalten A-C sind für Informationen zum Testfall vorgesehen
+. Spalten D-G sind für Informationen zu Testschritten vorgesehen
+. Spalten H-K sidn für QF-Test reserviert
+
+==== Spalten für Informationen zum Testfall
+Die Zeile, in der Informationen zu einem Testfall hinterlegt werden, wird automatisch als Beginn für einen Testfall interpretiert. Damit sind die Informationen für den Testfall in der Zeile, in der sich auch der erste Testschritt des Testfalls steht.
+
+===== Spalte "ID"
+Als "ID" kann ein beliebiger Text hinterlegt werden. Die _ID_ wird auch nicht auf Eindeutigkeit geprüft.
+
+NOTE: Es wird empfolhlen, die _ID_ eindeutig zu vergeben, da doppelte _IDs_ zu Verwechslungen führen können.
+
+===== Spalte "Name"
+
+===== Spalte "Description"
+
+
+==== Spalten für Informationen zu den Testschritten
+
+===== Spalte "#"
+
+===== Spalte "Name (test step)"
+
+===== Spalte "Instructions (test step)"
+
+===== Spalte "Expected results (test step)"
+
+
+=== Integration in eigene Projekte
